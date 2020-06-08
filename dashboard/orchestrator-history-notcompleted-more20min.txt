@@ -1,0 +1,30 @@
+// Orchestrators - Not Completed History
+// more then 20 minutes
+// https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-history-notcompleted-more20min.txt
+
+let instanceIds = traces
+| where timestamp < now()-20m
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| extend functionName = tostring(customDimensions["prop__functionName"])
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project  instanceId, state
+| where ['state'] != "Completed"
+| project  instanceId;
+traces
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| where customDimensions.prop__instanceId in (instanceIds)
+| extend functionName = customDimensions["prop__functionName"]
+| extend instanceId = customDimensions["prop__instanceId"]
+| extend state = customDimensions["prop__state"]
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| extend sequenceNumber = tolong(customDimensions["prop__sequenceNumber"])
+| where isReplay != true
+| sort by timestamp asc, sequenceNumber asc
+| project timestamp, functionName, state, instanceId, appName = cloud_RoleName

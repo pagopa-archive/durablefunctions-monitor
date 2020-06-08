@@ -1,0 +1,17 @@
+// Orchestrator
+// All Orchestrators Status
+// https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-piechart-allstatus.txt
+
+traces
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project state
+| summarize count() by state
+| order by state asc
+| render piechart;

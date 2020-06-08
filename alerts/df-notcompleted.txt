@@ -1,0 +1,51 @@
+// [FUNC] Durable Functions not Completed
+// https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/alerts/df-notcompleted.txt
+
+// Alert explain
+// let instanceIds get Durable Functions instances not completed in the window -30 <-> -20m
+// we need 20m to ensure that app insights contains all orchestrator's log.
+
+// evaluation at time now=t
+//   |--------|--------|--------|
+//  -30m     -20m              now
+
+// evaluation at time now=t+10m
+//            |--------|--------|--------|
+//           -30m     -20m              now
+
+// evaluation at time now=t+20m
+//                     |--------|--------|--------|
+//                    -30m     -20m              now
+
+// some orchestrators can overlap our window, so we need to extend the check window to 60 minutes
+
+// get intances with time-window -30 <-> -20m
+let instanceIds = traces
+| where timestamp > now()-30m
+| where timestamp < now()-20m
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project instanceId, state
+| where state != "Completed"
+| project instanceId;
+// check instances status in wide window 
+traces
+| where timestamp > now()-60m
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| where customDimensions["prop__instanceId"] in (instanceIds)
+| extend functionName = tostring(customDimensions["prop__functionName"])
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project timestamp, instanceId, functionName, state, appName = cloud_RoleName
+| where state != "Completed"

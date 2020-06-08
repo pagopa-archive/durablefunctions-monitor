@@ -1,0 +1,18 @@
+// Orchestrators Queue
+// last 20 minutes
+// https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-piechart-queue-running-last20min.txt
+
+traces
+| where timestamp > now()-20m
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project state, appName = cloud_RoleName
+| where ['state'] != "Completed"
+| summarize count() by appName
+| render piechart;
