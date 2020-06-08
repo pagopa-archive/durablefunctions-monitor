@@ -1,0 +1,17 @@
+// Orchestrator
+// Status over time
+// https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-timechart-allstatus.txt
+
+traces
+| where customDimensions.prop__functionType == "Orchestrator"
+| where customDimensions.Category == "Host.Triggers.DurableTask"
+| where customDimensions.prop__state in ("Scheduled", "Started", "Awaited", "Listening", "Completed", "Failed")
+| extend instanceId = tostring(customDimensions["prop__instanceId"])
+| extend state = tostring(customDimensions["prop__state"])
+| extend isReplay = tobool(tolower(customDimensions["prop__isReplay"]))
+| where isReplay != true
+| summarize arg_max(timestamp, *) by instanceId
+| project timestamp, state
+| summarize count() by state, bin(timestamp, 10m)
+| order by ['state'] asc
+| render timechart;
