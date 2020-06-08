@@ -27,4 +27,4 @@ traces
 | extend sequenceNumber = tolong(customDimensions["prop__sequenceNumber"])
 | where isReplay != true
 | sort by timestamp asc, sequenceNumber asc
-| project timestamp, functionName, state, instanceId, appName = cloud_RoleName
+| project timestamp, functionName, state, instanceId, appName = cloud_RoleName;
