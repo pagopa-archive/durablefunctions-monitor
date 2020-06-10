@@ -1,7 +1,7 @@
 // Activity
 // Not Completed Activity
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/activity-piechart-notcompleted.txt
-
+//
 traces
 | where customDimensions.prop__functionType == "Activity"
 | where customDimensions.Category == "Host.Triggers.DurableTask"

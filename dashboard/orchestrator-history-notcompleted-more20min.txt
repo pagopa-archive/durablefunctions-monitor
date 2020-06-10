@@ -1,7 +1,7 @@
 // Orchestrators - Not Completed History
 // more then 20 minutes
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-history-notcompleted-more20min.txt
-
+//
 // get not completed instanceIds from 20 minutes to XX minutes (specified in timerange in dashboard)
 let instanceIds = traces
 | where timestamp < now()-20m

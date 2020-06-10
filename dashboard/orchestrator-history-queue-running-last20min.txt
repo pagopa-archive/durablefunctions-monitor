@@ -1,7 +1,7 @@
 // Orchestrators Queue - Running History
 // last 20 minutes
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-history-queue-running-last20min.txt
-
+//
 let instanceIds = traces
 | where timestamp > now()-20m
 | where customDimensions.prop__functionType == "Orchestrator"

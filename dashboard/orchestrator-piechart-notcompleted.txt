@@ -1,7 +1,7 @@
 // Orchestrator
 // Not Completed Orchestrator
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-piechart-notcompleted.txt
-
+//
 traces
 | where customDimensions.prop__functionType == "Orchestrator"
 | where customDimensions.Category == "Host.Triggers.DurableTask"

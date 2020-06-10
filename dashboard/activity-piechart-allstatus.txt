@@ -1,7 +1,7 @@
 // Activity
 // All Activities Status
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/activity-piechart-allstatus.txt
-
+//
 traces
 | where customDimensions.prop__functionType == "Activity"
 | where customDimensions.Category == "Host.Triggers.DurableTask"

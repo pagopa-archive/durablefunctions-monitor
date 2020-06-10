@@ -1,7 +1,7 @@
 // Orchestrators Queue
 // last 20 minutes
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-piechart-queue-running-last20min.txt
-
+//
 traces
 | where timestamp > now()-20m
 | where customDimensions.prop__functionType == "Orchestrator"

@@ -1,7 +1,7 @@
 // Orchestrator
 // Status over time
 // https://raw.githubusercontent.com/pagopa/durablefunctions-monitor/master/dashboard/orchestrator-timechart-allstatus.txt
-
+//
 traces
 | where customDimensions.prop__functionType == "Orchestrator"
 | where customDimensions.Category == "Host.Triggers.DurableTask"
