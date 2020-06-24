@@ -1,0 +1,5 @@
+requests
+| project timestamp, cloud_RoleName, operation_Name, success, duration, resultCode
+| where cloud_RoleName startswith 'io-p-f' and operation_Name contains ('Orchestrator')
+| where success == "False"
+| order by timestamp desc
